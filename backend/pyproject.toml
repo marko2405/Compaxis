@@ -1,0 +1,17 @@
+[project]
+name = "euroscout"
+version = "0.1.0"
+description = "AI-powered EuroLeague scouting platform."
+readme = "README.md"
+authors = [
+    { name = "Marko Stojanović", email = "stojanovicmarko688@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.141.1",
+    "uvicorn[stadard,standard]>=0.52.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
