@@ -1,7 +1,6 @@
-from sqlalchemy.orm import Session
-
 from euroscout.models.player import Player
 from euroscout.repositories.player_repository import PlayerRepository
+from sqlalchemy.orm import Session
 
 
 class PlayerService:
