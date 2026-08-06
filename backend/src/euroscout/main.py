@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from euroscout.api.players import router as players_router
+from euroscout.api.scout import router as scout_router
 from euroscout.api.standings import router as standings_router
 from euroscout.api.teams import router as teams_router
 from euroscout.database.session import engine
@@ -12,6 +13,7 @@ app = FastAPI(
     version="0.1.0",
 )
 app.include_router(players_router)
+app.include_router(scout_router)
 app.include_router(teams_router)
 app.include_router(standings_router)
 
