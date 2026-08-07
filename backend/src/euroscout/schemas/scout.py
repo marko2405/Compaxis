@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PlayerComparisonRequest(BaseModel):
@@ -44,10 +44,25 @@ class PlayerComparisonDifferences(BaseModel):
     pir_per_game: float
 
 
-class PlayerComparisonResponse(BaseModel):
+class DeterministicPlayerComparison(BaseModel):
     season_code: str
     player_a: ComparedPlayerResponse
     player_b: ComparedPlayerResponse
     differences: PlayerComparisonDifferences = Field(
         description="All values represent player_a minus player_b."
     )
+
+
+class ScoutAnalysis(BaseModel):
+    summary: str
+    player_a_strengths: list[str]
+    player_b_strengths: list[str]
+    key_differences: list[str]
+    conclusion: str
+    data_limitations: list[str]
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PlayerComparisonResponse(DeterministicPlayerComparison):
+    analysis: ScoutAnalysis

@@ -8,6 +8,7 @@ from euroscout.schemas.scout import (
     PlayerComparisonRequest,
     PlayerComparisonResponse,
 )
+from euroscout.services.scout_analysis_service import ScoutAnalysisUnavailableError
 from euroscout.services.scout_service import (
     PlayerSeasonStatsNotFoundError,
     SamePlayerComparisonError,
@@ -29,7 +30,7 @@ def compare_players(
     db: DatabaseSession,
 ) -> PlayerComparisonResponse:
     try:
-        return scout_service.compare_players(db, comparison)
+        return scout_service.compare_players_with_analysis(db, comparison)
     except SamePlayerComparisonError as error:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -39,4 +40,9 @@ def compare_players(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(error),
+        ) from error
+    except ScoutAnalysisUnavailableError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI analysis is temporarily unavailable.",
         ) from error

@@ -6,10 +6,12 @@ from euroscout.repositories.player_repository import (
 )
 from euroscout.schemas.scout import (
     ComparedPlayerResponse,
+    DeterministicPlayerComparison,
     PlayerComparisonDifferences,
     PlayerComparisonRequest,
     PlayerComparisonResponse,
 )
+from euroscout.services.scout_analysis_service import ScoutAnalysisService
 
 
 class SamePlayerComparisonError(ValueError):
@@ -28,14 +30,18 @@ class PlayerSeasonStatsNotFoundError(LookupError):
 
 
 class ScoutService:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        analysis_service: ScoutAnalysisService | None = None,
+    ) -> None:
         self.players = PlayerRepository()
+        self.analysis_service = analysis_service or ScoutAnalysisService()
 
     def compare_players(
         self,
         db: Session,
         comparison: PlayerComparisonRequest,
-    ) -> PlayerComparisonResponse:
+    ) -> DeterministicPlayerComparison:
         if comparison.player_a_id == comparison.player_b_id:
             raise SamePlayerComparisonError("Player IDs must be different.")
 
@@ -54,11 +60,24 @@ class ScoutService:
         player_a = _to_compared_player(player_a_row)
         player_b = _to_compared_player(player_b_row)
 
-        return PlayerComparisonResponse(
+        return DeterministicPlayerComparison(
             season_code=comparison.season_code,
             player_a=player_a,
             player_b=player_b,
             differences=_calculate_differences(player_a, player_b),
+        )
+
+    def compare_players_with_analysis(
+        self,
+        db: Session,
+        comparison: PlayerComparisonRequest,
+    ) -> PlayerComparisonResponse:
+        deterministic_comparison = self.compare_players(db, comparison)
+        analysis = self.analysis_service.analyze(deterministic_comparison)
+
+        return PlayerComparisonResponse(
+            **deterministic_comparison.model_dump(),
+            analysis=analysis,
         )
 
     def _get_player_or_raise(
