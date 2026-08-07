@@ -1,6 +1,6 @@
 from typing import cast
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.orm import InstrumentedAttribute, Session
 
 from euroscout.models.player import Player
@@ -47,6 +47,8 @@ class PlayerRepository:
         season_code: str,
         sort_by: PlayerLeaderboardSort,
         order: PlayerLeaderboardOrder,
+        page: int,
+        page_size: int,
     ) -> list[PlayerLeaderboardRow]:
         sort_column = LEADERBOARD_SORT_COLUMNS[sort_by]
         order_expression = sort_column.desc() if order == "desc" else sort_column.asc()
@@ -54,10 +56,27 @@ class PlayerRepository:
             self._player_season_statement()
             .where(Season.code == season_code)
             .order_by(order_expression, Player.id.asc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
         )
 
         rows = db.execute(statement).tuples().all()
         return cast(list[PlayerLeaderboardRow], rows)
+
+    def count_leaderboard(
+        self,
+        db: Session,
+        *,
+        season_code: str,
+    ) -> int:
+        statement = (
+            select(func.count())
+            .select_from(PlayerSeasonStats)
+            .join(Season, Season.id == PlayerSeasonStats.season_id)
+            .where(Season.code == season_code)
+        )
+
+        return db.scalar(statement) or 0
 
     def get_player_season_stats(
         self,

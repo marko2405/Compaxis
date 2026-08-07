@@ -1,3 +1,9 @@
+import Typography from "@mui/material/Typography";
+
 export default function TeamsPage() {
-  return <h1>Teams</h1>;
+  return (
+    <Typography component="h1" variant="h1">
+      Teams
+    </Typography>
+  );
 }

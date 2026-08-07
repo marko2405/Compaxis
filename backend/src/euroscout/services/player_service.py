@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from euroscout.models.player import Player
 from euroscout.repositories.player_repository import PlayerRepository
 from euroscout.schemas.player import (
+    PaginatedPlayerLeaderboardResponse,
     PlayerLeaderboardOrder,
     PlayerLeaderboardResponse,
     PlayerLeaderboardSort,
@@ -26,15 +27,23 @@ class PlayerService:
         season_code: str,
         sort_by: PlayerLeaderboardSort,
         order: PlayerLeaderboardOrder,
-    ) -> list[PlayerLeaderboardResponse]:
+        page: int,
+        page_size: int,
+    ) -> PaginatedPlayerLeaderboardResponse:
         rows = self.repository.get_leaderboard(
             db,
             season_code=season_code,
             sort_by=sort_by,
             order=order,
+            page=page,
+            page_size=page_size,
+        )
+        total_items = self.repository.count_leaderboard(
+            db,
+            season_code=season_code,
         )
 
-        return [
+        items = [
             PlayerLeaderboardResponse(
                 player_id=player.id,
                 external_id=player.external_id,
@@ -60,6 +69,14 @@ class PlayerService:
             )
             for player, stats, team, season in rows
         ]
+
+        return PaginatedPlayerLeaderboardResponse(
+            items=items,
+            page=page,
+            page_size=page_size,
+            total_items=total_items,
+            total_pages=(total_items + page_size - 1) // page_size,
+        )
 
     def get_player_by_id(
         self,

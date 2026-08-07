@@ -1,12 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from euroscout.database.session import get_db
 from euroscout.schemas.player import (
+    PaginatedPlayerLeaderboardResponse,
     PlayerLeaderboardOrder,
-    PlayerLeaderboardResponse,
     PlayerLeaderboardSort,
     PlayerResponse,
 )
@@ -36,19 +36,23 @@ def get_players(
 
 @router.get(
     "/leaderboard",
-    response_model=list[PlayerLeaderboardResponse],
+    response_model=PaginatedPlayerLeaderboardResponse,
 )
 def get_player_leaderboard(
     db: DatabaseSession,
     season_code: str = "E2024",
     sort_by: PlayerLeaderboardSort = "pir",
     order: PlayerLeaderboardOrder = "desc",
-) -> list[PlayerLeaderboardResponse]:
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=20)] = 15,
+) -> PaginatedPlayerLeaderboardResponse:
     return player_service.get_leaderboard(
         db,
         season_code=season_code,
         sort_by=sort_by,
         order=order,
+        page=page,
+        page_size=page_size,
     )
 
 

@@ -56,3 +56,11 @@ class PlayerLeaderboardResponse(BaseModel):
     three_point_percentage: float
     free_throw_percentage: float
     pir_per_game: float
+
+
+class PaginatedPlayerLeaderboardResponse(BaseModel):
+    items: list[PlayerLeaderboardResponse]
+    page: int
+    page_size: int
+    total_items: int
+    total_pages: int

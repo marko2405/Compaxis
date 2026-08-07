@@ -3,6 +3,7 @@ import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { Geist } from "next/font/google";
 
 import { ThemeProvider } from "@/components/layout/theme-provider";
+import { AppShell } from "@/components/layout/app-shell";
 
 import "./globals.css";
 
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={geistSans.variable} suppressHydrationWarning>
       <body>
         <InitColorSchemeScript attribute="data" defaultMode="system" />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AppShell>{children}</AppShell>
+        </ThemeProvider>
       </body>
     </html>
   );
