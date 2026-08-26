@@ -35,7 +35,7 @@ export function LeaderboardAvatar({
       }}
       src={!failed && src ? src : undefined}
       sx={{
-        bgcolor: "action.hover",
+        backgroundColor: "transparent",
         color: "text.secondary",
         flexShrink: 0,
         height: size,

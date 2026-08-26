@@ -10,7 +10,10 @@ import type { TeamListItem } from "@/types/team";
 export function TeamCard({ team }: { team: TeamListItem }) {
   return (
     <Card sx={{ height: "100%" }}>
-      <CardActionArea href={`/teams/${team.team_id}`} sx={{ height: "100%", p: 2 }}>
+      <CardActionArea
+        href={`/teams/${team.team_id}`}
+        sx={{ height: "100%", p: 2 }}
+      >
         <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
           <LeaderboardAvatar
             alt={`${team.name} logo`}

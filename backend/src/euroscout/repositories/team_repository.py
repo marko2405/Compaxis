@@ -49,6 +49,10 @@ class TeamRepository:
     def get_by_id(self, db: Session, team_id: int) -> Team | None:
         return db.get(Team, team_id)
 
+    def get_by_external_ids(self, db: Session, external_ids: set[str]) -> list[Team]:
+        statement = select(Team).where(Team.external_id.in_(external_ids))
+        return list(db.scalars(statement).all())
+
     def get_by_id_for_season(
         self,
         db: Session,
