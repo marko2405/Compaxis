@@ -1,8 +1,10 @@
 import unittest
 
+from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from euroscout.api.players import get_player_profile
 from euroscout.database.base import Base
 from euroscout.models.player import Player
 from euroscout.models.player_season_stats import PlayerSeasonStats
@@ -74,6 +76,36 @@ class PlayerLeaderboardPaginationTests(unittest.TestCase):
         self.assertEqual(last_page.total_pages, 3)
         self.assertEqual(len(last_page.items), 15)
         self.assertEqual(last_page.items[0].points_per_game, 31.0)
+
+    def test_returns_player_profile_for_selected_season(self) -> None:
+        service = PlayerService()
+
+        with Session(self.engine) as session:
+            profile = service.get_profile(
+                session,
+                player_id=1,
+                season_code="E2024",
+            )
+
+        self.assertIsNotNone(profile)
+        assert profile is not None
+        self.assertEqual(profile.player_id, 1)
+        self.assertEqual(profile.team_name, "Test Team")
+        self.assertEqual(profile.season_code, "E2024")
+        self.assertEqual(profile.points_per_game, 1.0)
+
+    def test_profile_endpoint_returns_404_without_selected_season_data(self) -> None:
+        with (
+            Session(self.engine) as session,
+            self.assertRaises(HTTPException) as raised,
+        ):
+            get_player_profile(
+                player_id=999,
+                db=session,
+                season_code="E2024",
+            )
+
+        self.assertEqual(raised.exception.status_code, 404)
 
     def _seed_leaderboard(self) -> None:
         with Session(self.engine) as session:

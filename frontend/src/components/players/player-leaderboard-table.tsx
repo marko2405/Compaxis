@@ -9,6 +9,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import Link from "next/link";
 
 import type {
   PlayerLeaderboardEntry,
@@ -36,6 +37,18 @@ export function PlayerLeaderboardTable({
   seasonCode,
   sortBy,
 }: PlayerLeaderboardTableProps) {
+  function playerHref(playerId: number): string {
+    const params = new URLSearchParams({
+      season_code: seasonCode,
+      return_page: page.toString(),
+      return_page_size: pageSize.toString(),
+      return_sort_by: sortBy,
+      return_order: order,
+    });
+
+    return `/players/${playerId}?${params.toString()}`;
+  }
+
   function sortHref(sortField: PlayerLeaderboardSort): string {
     const nextOrder =
       sortBy === sortField && order === "desc" ? "asc" : "desc";
@@ -164,9 +177,18 @@ export function PlayerLeaderboardTable({
                       src={player.image_url}
                     />
                     <Box>
-                      <Typography sx={{ fontWeight: 650 }} variant="body2">
-                        {player.first_name} {player.last_name}
-                      </Typography>
+                      <Link href={playerHref(player.player_id)}>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontWeight: 650,
+                            "&:hover": { color: "primary.main" },
+                          }}
+                          variant="body2"
+                        >
+                          {player.first_name} {player.last_name}
+                        </Typography>
+                      </Link>
                     </Box>
                   </Stack>
                 </TableCell>

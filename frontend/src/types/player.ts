@@ -47,6 +47,18 @@ export type PlayerLeaderboardEntry = {
   pir_per_game: number;
 };
 
+export type PlayerProfile = PlayerLeaderboardEntry;
+
+export type PlayerSearchResult = {
+  player_id: number;
+  first_name: string;
+  last_name: string;
+  image_url: string | null;
+  team_id: number | null;
+  team_name: string | null;
+  team_logo_url: string | null;
+};
+
 export type PaginatedPlayerLeaderboard = {
   items: PlayerLeaderboardEntry[];
   page: number;

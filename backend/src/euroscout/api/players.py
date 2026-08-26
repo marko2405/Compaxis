@@ -7,8 +7,10 @@ from euroscout.database.session import get_db
 from euroscout.schemas.player import (
     PaginatedPlayerLeaderboardResponse,
     PlayerLeaderboardOrder,
+    PlayerLeaderboardResponse,
     PlayerLeaderboardSort,
     PlayerResponse,
+    PlayerSearchResult,
 )
 from euroscout.services.player_service import PlayerService
 
@@ -35,6 +37,18 @@ def get_players(
 
 
 @router.get(
+    "/search",
+    response_model=list[PlayerSearchResult],
+)
+def search_players(
+    db: DatabaseSession,
+    q: str = "",
+    limit: Annotated[int, Query(ge=1, le=10)] = 8,
+) -> list[PlayerSearchResult]:
+    return player_service.search_players(db, query=q, limit=limit)
+
+
+@router.get(
     "/leaderboard",
     response_model=PaginatedPlayerLeaderboardResponse,
 )
@@ -54,6 +68,30 @@ def get_player_leaderboard(
         page=page,
         page_size=page_size,
     )
+
+
+@router.get(
+    "/{player_id}/profile",
+    response_model=PlayerLeaderboardResponse,
+)
+def get_player_profile(
+    player_id: int,
+    db: DatabaseSession,
+    season_code: str = "E2024",
+) -> PlayerLeaderboardResponse:
+    profile = player_service.get_profile(
+        db,
+        player_id=player_id,
+        season_code=season_code,
+    )
+
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Player profile not found for the selected season.",
+        )
+
+    return profile
 
 
 @router.get(

@@ -2,6 +2,7 @@
 
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -10,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
 import { getPageTitle } from "./navigation";
+import { PlayerSearch } from "./player-search";
 
 type AppHeaderProps = {
   onMenuOpen: () => void;
@@ -40,9 +42,12 @@ export function AppHeader({ onMenuOpen }: AppHeaderProps) {
         >
           <MenuOutlinedIcon />
         </IconButton>
-        <Typography component="div" sx={{ flexGrow: 1 }} variant="subtitle1">
+        <Typography component="div" sx={{ display: { xs: "none", sm: "block" }, flexGrow: 1 }} variant="subtitle1">
           {getPageTitle(pathname)}
         </Typography>
+        <Box sx={{ flexGrow: { xs: 1, sm: 0 } }}>
+          <PlayerSearch />
+        </Box>
         <ModeToggle />
       </Toolbar>
     </AppBar>

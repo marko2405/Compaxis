@@ -18,6 +18,16 @@ class PlayerResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class PlayerSearchResult(BaseModel):
+    player_id: int
+    first_name: str
+    last_name: str
+    image_url: str | None
+    team_id: int | None
+    team_name: str | None
+    team_logo_url: str | None
+
+
 PlayerLeaderboardSort = Literal[
     "pir",
     "points",

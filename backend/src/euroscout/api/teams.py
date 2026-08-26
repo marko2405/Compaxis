@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from euroscout.database.session import get_db
-from euroscout.schemas.team import TeamResponse
+from euroscout.schemas.team import TeamListResponse, TeamProfileResponse, TeamResponse
 from euroscout.services.team_service import TeamService
 
 router = APIRouter(
@@ -19,12 +19,33 @@ DatabaseSession = Annotated[Session, Depends(get_db)]
 
 @router.get(
     "",
-    response_model=list[TeamResponse],
+    response_model=list[TeamListResponse],
 )
-def get_teams(db: DatabaseSession) -> list[TeamResponse]:
-    teams = team_service.get_all_teams(db)
+def get_teams(db: DatabaseSession) -> list[TeamListResponse]:
+    return team_service.get_team_list(db)
 
-    return [TeamResponse.model_validate(team) for team in teams]
+
+@router.get(
+    "/{team_id}/profile",
+    response_model=TeamProfileResponse,
+)
+def get_team_profile(
+    team_id: int,
+    db: DatabaseSession,
+    season_code: str = "E2024",
+) -> TeamProfileResponse:
+    profile = team_service.get_profile(
+        db,
+        team_id=team_id,
+        season_code=season_code,
+    )
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Team profile not found for the selected season.",
+        )
+
+    return profile
 
 
 @router.get(

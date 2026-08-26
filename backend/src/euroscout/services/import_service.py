@@ -56,6 +56,7 @@ class ImportService:
         stat_rows_updated = 0
 
         for row in rows:
+            _validate_single_team_identity(row)
             team_external_id = _required_string(row, "player.team.code")
             player_external_id = _required_string(row, "player.code")
 
@@ -185,6 +186,17 @@ def _stats_values(row: dict[str, Any]) -> dict[str, Any]:
         "free_throw_percentage": _to_percentage(row.get("freeThrowsPercentage")),
         "pir_per_game": _to_float(row.get("pir")),
     }
+
+
+def _validate_single_team_identity(row: dict[str, Any]) -> None:
+    for key in (
+        "player.team.code",
+        "player.team.name",
+        "player.team.imageUrl",
+    ):
+        value = _optional_string(row.get(key))
+        if value is not None and ";" in value:
+            raise ValueError(f"Multiple teams are not valid for {key}: {value!r}")
 
 
 def _split_player_name(full_name: str) -> tuple[str, str]:

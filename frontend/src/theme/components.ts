@@ -61,7 +61,7 @@ export const components: Components<Theme> = {
         fontSize: "0.75rem",
         fontWeight: 700,
         letterSpacing: "0.04em",
-        textTransform: "uppercase",
+        textTransform: "uppercase", 
       }),
     },
   },
