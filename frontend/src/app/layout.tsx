@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 
 import { ThemeProvider } from "@/components/layout/theme-provider";
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "EuroLeague scouting and analytics intelligence.",
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   const seasons = await getSeasons().catch(() => []);
   const initialSeasonCode = await resolveSeasonCode(seasons);
   return (
