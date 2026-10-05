@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from euroscout.api.players import router as players_router
 from euroscout.api.scout import router as scout_router
+from euroscout.api.seasons import router as seasons_router
 from euroscout.api.standings import router as standings_router
 from euroscout.api.teams import router as teams_router
 from euroscout.database.session import engine
@@ -24,6 +25,7 @@ app.add_middleware(
 )
 app.include_router(players_router)
 app.include_router(scout_router)
+app.include_router(seasons_router)
 app.include_router(teams_router)
 app.include_router(standings_router)
 

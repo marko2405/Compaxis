@@ -7,11 +7,11 @@ import Typography from "@mui/material/Typography";
 import { LeaderboardAvatar } from "@/components/players/leaderboard-avatar";
 import type { TeamListItem } from "@/types/team";
 
-export function TeamCard({ team }: { team: TeamListItem }) {
+export function TeamCard({ seasonCode, team }: { seasonCode: string; team: TeamListItem }) {
   return (
     <Card sx={{ height: "100%" }}>
       <CardActionArea
-        href={`/teams/${team.team_id}`}
+        href={`/teams/${team.team_id}?season_code=${encodeURIComponent(seasonCode)}`}
         sx={{ height: "100%", p: 2 }}
       >
         <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>

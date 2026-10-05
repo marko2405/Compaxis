@@ -8,6 +8,8 @@ import {
   getPlayerProfile,
   PlayerServiceError,
 } from "@/services/player-service";
+import { getSeasons } from "@/services/season-service";
+import { resolveSeasonCode } from "@/lib/season-selection";
 import {
   playerLeaderboardSorts,
   type PlayerLeaderboardOrder,
@@ -27,11 +29,27 @@ export default async function PlayerProfilePage({
   const { player_id: playerIdParam } = await params;
   const query = await searchParams;
   const playerId = parsePlayerId(playerIdParam);
-  const seasonCode = readSingleValue(query.season_code) ?? "E2024";
 
   if (playerId === null) {
     notFound();
   }
+
+  let seasons;
+  try {
+    seasons = await getSeasons();
+  } catch {
+    seasons = null;
+  }
+
+  if (seasons === null) {
+    return <Alert severity="error" variant="outlined">Seasons are currently unavailable. Check that the API is running and try again.</Alert>;
+  }
+  if (seasons.length === 0) {
+    return <Alert severity="info" variant="outlined">No seasons are available yet.</Alert>;
+  }
+
+  const seasonCode = await resolveSeasonCode(seasons, readSingleValue(query.season_code));
+  if (!seasonCode) return <Alert severity="info" variant="outlined">No seasons are available yet.</Alert>;
 
   let player: PlayerProfileData | null = null;
 

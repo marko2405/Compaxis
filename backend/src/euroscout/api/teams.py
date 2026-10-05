@@ -21,8 +21,11 @@ DatabaseSession = Annotated[Session, Depends(get_db)]
     "",
     response_model=list[TeamListResponse],
 )
-def get_teams(db: DatabaseSession) -> list[TeamListResponse]:
-    return team_service.get_team_list(db)
+def get_teams(
+    db: DatabaseSession,
+    season_code: str | None = None,
+) -> list[TeamListResponse]:
+    return team_service.get_team_list(db, season_code=season_code)
 
 
 @router.get(

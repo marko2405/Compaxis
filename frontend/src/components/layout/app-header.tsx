@@ -12,6 +12,7 @@ import { ModeToggle } from "@/components/ui/mode-toggle";
 
 import { getPageTitle } from "./navigation";
 import { PlayerSearch } from "./player-search";
+import { HeaderSeasonSelector } from "./header-season-selector";
 
 type AppHeaderProps = {
   onMenuOpen: () => void;
@@ -45,6 +46,7 @@ export function AppHeader({ onMenuOpen }: AppHeaderProps) {
         <Typography component="div" sx={{ display: { xs: "none", sm: "block" }, flexGrow: 1 }} variant="subtitle1">
           {getPageTitle(pathname)}
         </Typography>
+        <HeaderSeasonSelector />
         <Box sx={{ flexGrow: { xs: 1, sm: 0 } }}>
           <PlayerSearch />
         </Box>

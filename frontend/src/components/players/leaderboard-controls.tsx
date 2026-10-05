@@ -17,7 +17,6 @@ import type {
   PlayerLeaderboardQuery,
   PlayerLeaderboardSort,
 } from "@/types/player";
-import { formatSeasonCode } from "@/lib/format-season-code";
 
 const sortOptions: Array<{ label: string; value: PlayerLeaderboardSort }> = [
   { label: "PIR", value: "pir" },
@@ -33,10 +32,9 @@ const sortOptions: Array<{ label: string; value: PlayerLeaderboardSort }> = [
   { label: "FT percentage", value: "free_throw_percentage" },
 ];
 
-type LeaderboardControlsProps = PlayerLeaderboardQuery;
+type LeaderboardControlsProps = Omit<PlayerLeaderboardQuery, "seasonCode">;
 
 export function LeaderboardControls({
-  seasonCode,
   sortBy,
   order,
   page,
@@ -46,10 +44,9 @@ export function LeaderboardControls({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  function updateQuery(update: Partial<PlayerLeaderboardQuery>) {
-    const nextQuery = { seasonCode, sortBy, order, page, pageSize, ...update };
+  function updateQuery(update: Partial<Omit<PlayerLeaderboardQuery, "seasonCode">>) {
+    const nextQuery = { sortBy, order, page, pageSize, ...update };
     const params = new URLSearchParams({
-      season_code: nextQuery.seasonCode,
       sort_by: nextQuery.sortBy,
       order: nextQuery.order,
       page: nextQuery.page.toString(),
@@ -59,10 +56,6 @@ export function LeaderboardControls({
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`);
     });
-  }
-
-  function handleSeasonChange(event: SelectChangeEvent) {
-    updateQuery({ seasonCode: event.target.value, page: 1 });
   }
 
   function handleSortChange(event: SelectChangeEvent) {
@@ -86,18 +79,6 @@ export function LeaderboardControls({
       direction={{ xs: "column", sm: "row" }}
       sx={{ alignItems: { sm: "center" }, gap: 1.5 }}
     >
-      <FormControl disabled={isPending} size="small" sx={{ minWidth: 140 }}>
-        <InputLabel id="season-label">Season</InputLabel>
-        <Select
-          label="Season"
-          labelId="season-label"
-          onChange={handleSeasonChange}
-          value={seasonCode}
-        >
-          <MenuItem value="E2024">{formatSeasonCode("E2024")}</MenuItem>
-        </Select>
-      </FormControl>
-
       <FormControl disabled={isPending} size="small" sx={{ minWidth: 190 }}>
         <InputLabel id="sort-label">Sort by</InputLabel>
         <Select

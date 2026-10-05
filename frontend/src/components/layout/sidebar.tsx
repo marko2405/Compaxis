@@ -12,6 +12,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSeason } from "./season-context";
 
 import {
   isActiveRoute,
@@ -29,6 +30,7 @@ type SidebarProps = {
 
 export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
+  const { withSeason } = useSeason();
   const content = (
     <Stack sx={{ height: "100%", p: 2 }}>
       <Stack
@@ -67,6 +69,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             key={item.href}
             onNavigate={onMobileClose}
             pathname={pathname}
+            seasonHref={withSeason(item.href)}
           />
         ))}
       </List>
@@ -79,6 +82,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           item={scoutNavigation}
           onNavigate={onMobileClose}
           pathname={pathname}
+          seasonHref={withSeason(scoutNavigation.href)}
         />
       </List>
     </Stack>
@@ -120,6 +124,7 @@ type NavigationLinkProps = {
   item: NavigationItem;
   onNavigate: () => void;
   pathname: string;
+  seasonHref: string;
 };
 
 function NavigationLink({
@@ -127,6 +132,7 @@ function NavigationLink({
   item,
   onNavigate,
   pathname,
+  seasonHref,
 }: NavigationLinkProps) {
   const active = isActiveRoute(pathname, item.href);
   const Icon = item.icon;
@@ -135,7 +141,7 @@ function NavigationLink({
     <ListItemButton
       aria-current={active ? "page" : undefined}
       component={Link}
-      href={item.href}
+      href={seasonHref}
       onClick={onNavigate}
       selected={active}
       sx={{

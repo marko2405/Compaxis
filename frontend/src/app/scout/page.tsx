@@ -2,15 +2,19 @@ import Alert from "@mui/material/Alert";
 
 import { ScoutComparison } from "@/components/scout/scout-comparison";
 import { getSeasonPlayers } from "@/services/player-service";
+import { getSeasons } from "@/services/season-service";
+import { resolveSeasonCode } from "@/lib/season-selection";
 
 type ScoutPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const SEASON_CODE = "E2024";
-
 export default async function ScoutPage({ searchParams }: ScoutPageProps) {
   const query = await searchParams;
+  const seasons = await getSeasons().catch(() => null);
+  if (seasons === null) return <Alert severity="error" variant="outlined">Seasons are currently unavailable.</Alert>;
+  const seasonCode = await resolveSeasonCode(seasons, readSingleValue(query.season_code));
+  if (!seasonCode) return <Alert severity="info" variant="outlined">No seasons are available yet.</Alert>;
   const playerA = parsePlayerId(readSingleValue(query.playerA));
   const playerB = parsePlayerId(readSingleValue(query.playerB));
   const queryError =
@@ -18,7 +22,7 @@ export default async function ScoutPage({ searchParams }: ScoutPageProps) {
       ? "The preselected player ID is invalid. Choose a player from the list."
       : null;
 
-  const players = await getAvailablePlayers();
+  const players = await getAvailablePlayers(seasonCode);
   if (players === null) {
     return (
       <Alert severity="error" variant="outlined">
@@ -34,14 +38,14 @@ export default async function ScoutPage({ searchParams }: ScoutPageProps) {
       initialPlayerBId={playerB.value}
       initialQueryError={queryError}
       players={players}
-      seasonCode={SEASON_CODE}
+      seasonCode={seasonCode}
     />
   );
 }
 
-async function getAvailablePlayers() {
+async function getAvailablePlayers(seasonCode: string) {
   try {
-    return await getSeasonPlayers(SEASON_CODE);
+    return await getSeasonPlayers(seasonCode);
   } catch {
     return null;
   }

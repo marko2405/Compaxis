@@ -1,5 +1,5 @@
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
@@ -9,28 +9,53 @@ import { ScoutQuickAction } from "@/components/overview/scout-quick-action";
 import { StandingsLeaderCard } from "@/components/overview/standings-leader-card";
 import { formatSeasonCode } from "@/lib/format-season-code";
 import { getPlayerLeaderboard } from "@/services/player-service";
+import { getSeasons } from "@/services/season-service";
 import { getStandings } from "@/services/standing-service";
 import { getTeams } from "@/services/team-service";
+import { resolveSeasonCode } from "@/lib/season-selection";
 import type { PlayerLeaderboardSort } from "@/types/player";
 
-const SEASON_CODE = "E2024";
+type OverviewPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-function getTopPlayers(sortBy: PlayerLeaderboardSort) {
-  return getPlayerLeaderboard({ seasonCode: SEASON_CODE, sortBy, order: "desc", page: 1, pageSize: 5 });
+function getTopPlayers(seasonCode: string, sortBy: PlayerLeaderboardSort) {
+  return getPlayerLeaderboard({ seasonCode, sortBy, order: "desc", page: 1, pageSize: 5 });
 }
 
 function fulfilledValue<T>(result: PromiseSettledResult<T>): T | null {
   return result.status === "fulfilled" ? result.value : null;
 }
 
-export default async function OverviewPage() {
+export default async function OverviewPage({ searchParams }: OverviewPageProps) {
+  const params = await searchParams;
+  let seasons;
+
+  try {
+    seasons = await getSeasons();
+  } catch {
+    seasons = null;
+  }
+
+  if (seasons === null) {
+    return <OverviewState severity="error">Seasons are currently unavailable. Check that the API is running and try again.</OverviewState>;
+  }
+
+  if (seasons.length === 0) {
+    return <OverviewState severity="info">No seasons are available yet.</OverviewState>;
+  }
+
+  const seasonCode = await resolveSeasonCode(seasons, readSingleValue(params.season_code));
+  if (!seasonCode) return <OverviewState severity="info">No seasons are available yet.</OverviewState>;
+  const selectedSeason = seasons.find((season) => season.code === seasonCode) ?? seasons[0];
+
   const [pirResult, scorersResult, assistsResult, teamsResult, standingsResult] =
     await Promise.allSettled([
-      getTopPlayers("pir"),
-      getTopPlayers("points"),
-      getTopPlayers("assists"),
-      getTeams(),
-      getStandings(SEASON_CODE),
+      getTopPlayers(seasonCode, "pir"),
+      getTopPlayers(seasonCode, "points"),
+      getTopPlayers(seasonCode, "assists"),
+      getTeams(seasonCode),
+      getStandings(seasonCode),
     ]);
 
   const pir = fulfilledValue(pirResult);
@@ -46,7 +71,6 @@ export default async function OverviewPage() {
       <Box>
         <Stack direction="row" sx={{ alignItems: "center", flexWrap: "wrap", gap: 1 }}>
           <Typography component="h1" variant="h1">Overview</Typography>
-          <Chip label={formatSeasonCode(SEASON_CODE)} size="small" variant="outlined" />
         </Stack>
         <Typography color="text.secondary" sx={{ mt: 0.75 }}>
           EuroLeague scouting and performance snapshot.
@@ -56,20 +80,40 @@ export default async function OverviewPage() {
       <OverviewSummary
         leaderName={leader?.team_name ?? null}
         playerCount={playerCount}
-        season={formatSeasonCode(SEASON_CODE)}
+        season={selectedSeason.name || formatSeasonCode(seasonCode)}
         teamCount={teams?.length ?? null}
       />
 
       <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "repeat(3, minmax(0, 1fr))" } }}>
-        <PerformerPreview metric="pir_per_game" players={pir?.items ?? null} title="Top PIR" />
-        <PerformerPreview metric="points_per_game" players={scorers?.items ?? null} title="Top Scorers" />
-        <PerformerPreview metric="assists_per_game" players={assists?.items ?? null} title="Top Assists" />
+        <PerformerPreview metric="pir_per_game" players={pir?.items ?? null} seasonCode={seasonCode} title="Top PIR" />
+        <PerformerPreview metric="points_per_game" players={scorers?.items ?? null} seasonCode={seasonCode} title="Top Scorers" />
+        <PerformerPreview metric="assists_per_game" players={assists?.items ?? null} seasonCode={seasonCode} title="Top Assists" />
       </Box>
 
       <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "minmax(0, 3fr) minmax(280px, 2fr)" } }}>
-        <StandingsLeaderCard available={standings !== null} leader={leader} />
+        <StandingsLeaderCard available={standings !== null} leader={leader} seasonCode={seasonCode} />
         <ScoutQuickAction />
       </Box>
+
+
+    </Stack>
+  );
+}
+
+function readSingleValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function OverviewState({ children, severity }: { children: React.ReactNode; severity: "error" | "info" }) {
+  return (
+    <Stack spacing={3}>
+      <Box>
+        <Typography component="h1" variant="h1">Overview</Typography>
+        <Typography color="text.secondary" sx={{ mt: 0.75 }}>
+          EuroLeague scouting and performance snapshot.
+        </Typography>
+      </Box>
+      <Alert severity={severity} variant="outlined">{children}</Alert>
     </Stack>
   );
 }

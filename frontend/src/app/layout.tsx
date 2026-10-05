@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { Geist } from "next/font/google";
 
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AppShell } from "@/components/layout/app-shell";
+import { resolveSeasonCode } from "@/lib/season-selection";
+import { getSeasons } from "@/services/season-service";
 
 import "./globals.css";
 
@@ -17,13 +20,17 @@ export const metadata: Metadata = {
   description: "EuroLeague scouting and analytics intelligence.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const seasons = await getSeasons().catch(() => []);
+  const initialSeasonCode = await resolveSeasonCode(seasons);
   return (
     <html lang="en" className={geistSans.variable} suppressHydrationWarning>
       <body>
         <InitColorSchemeScript attribute="data" defaultMode="system" />
         <ThemeProvider>
-          <AppShell>{children}</AppShell>
+          <Suspense fallback={null}>
+            <AppShell initialSeasonCode={initialSeasonCode} seasons={seasons}>{children}</AppShell>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>

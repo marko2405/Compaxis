@@ -9,9 +9,9 @@ import Typography from "@mui/material/Typography";
 import { LeaderboardAvatar } from "@/components/players/leaderboard-avatar";
 import type { StandingItem } from "@/types/standing";
 
-type StandingsLeaderCardProps = { available: boolean; leader: StandingItem | null };
+type StandingsLeaderCardProps = { available: boolean; leader: StandingItem | null; seasonCode: string };
 
-export function StandingsLeaderCard({ available, leader }: StandingsLeaderCardProps) {
+export function StandingsLeaderCard({ available, leader, seasonCode }: StandingsLeaderCardProps) {
   return (
     <Card sx={{ height: "100%" }}>
       <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
@@ -30,7 +30,7 @@ export function StandingsLeaderCard({ available, leader }: StandingsLeaderCardPr
                 <Typography color="text.secondary" variant="body2"><Box component="span" sx={{ color: "text.primary", fontWeight: 800 }}>{leader.win_percentage.toFixed(1)}%</Box> win rate</Typography>
               </Stack>
             </Box>
-            <Link href={`/teams/${leader.team_id}`} sx={{ alignItems: "center", display: "inline-flex", flexShrink: 0, fontWeight: 700, gap: 0.25 }} underline="hover">
+            <Link href={`/teams/${leader.team_id}?season_code=${encodeURIComponent(seasonCode)}`} sx={{ alignItems: "center", display: "inline-flex", flexShrink: 0, fontWeight: 700, gap: 0.25 }} underline="hover">
               Team profile <ArrowForwardRounded fontSize="small" />
             </Link>
           </Stack>

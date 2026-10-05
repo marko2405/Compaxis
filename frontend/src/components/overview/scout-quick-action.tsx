@@ -12,9 +12,9 @@ export function ScoutQuickAction() {
       <CardContent sx={{ display: "flex", flexDirection: "column", height: "100%", p: 2.5, "&:last-child": { pb: 2.5 } }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <AutoAwesomeRounded sx={{ color: "ai.dark", fontSize: 20 }} />
-          <Typography color="ai.contrastText" component="h2" variant="h3">AI Scout</Typography>
+          <Typography component="h2" sx={{ color: "ai.contrastText" }} variant="h3">AI Scout</Typography>
         </Stack>
-        <Typography color="ai.contrastText" sx={{ mb: 2, mt: 1, opacity: 0.8 }} variant="body2">
+        <Typography sx={{ color: "ai.contrastText", mb: 2, mt: 1, opacity: 0.8 }} variant="body2">
           Compare two players with season statistics and a focused scouting analysis.
         </Typography>
         <Button endIcon={<ArrowForwardRounded />} href="/scout" sx={{ alignSelf: "flex-start", mt: "auto" }} variant="contained">

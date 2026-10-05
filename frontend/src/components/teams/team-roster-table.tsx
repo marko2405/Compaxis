@@ -13,7 +13,7 @@ import Typography from "@mui/material/Typography";
 import { LeaderboardAvatar } from "@/components/players/leaderboard-avatar";
 import type { TeamRosterPlayer } from "@/types/team";
 
-export function TeamRosterTable({ roster }: { roster: TeamRosterPlayer[] }) {
+export function TeamRosterTable({ roster, seasonCode }: { roster: TeamRosterPlayer[]; seasonCode: string }) {
   return (
     <Box component="section">
       <Typography sx={{ mb: 1.5 }} variant="h2">
@@ -45,7 +45,7 @@ export function TeamRosterTable({ roster }: { roster: TeamRosterPlayer[] }) {
                         size={36}
                         src={player.image_url}
                       />
-                      <Link href={`/players/${player.player_id}`} sx={{ color: "text.primary", fontWeight: 650, whiteSpace: "nowrap" }} underline="hover">
+                      <Link href={`/players/${player.player_id}?season_code=${encodeURIComponent(seasonCode)}`} sx={{ color: "text.primary", fontWeight: 650, whiteSpace: "nowrap" }} underline="hover">
                         {player.first_name} {player.last_name}
                       </Link>
                     </Stack>

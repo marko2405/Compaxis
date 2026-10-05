@@ -21,8 +21,18 @@ class TeamService:
     def get_team_by_id(self, db: Session, team_id: int) -> Team | None:
         return self.repository.get_by_id(db, team_id)
 
-    def get_team_list(self, db: Session) -> list[TeamListResponse]:
-        return [_to_team_list_response(team) for team in self.repository.get_all(db)]
+    def get_team_list(
+        self,
+        db: Session,
+        *,
+        season_code: str | None = None,
+    ) -> list[TeamListResponse]:
+        teams = (
+            self.repository.get_all_for_season(db, season_code=season_code)
+            if season_code
+            else self.repository.get_all(db)
+        )
+        return [_to_team_list_response(team) for team in teams]
 
     def get_profile(
         self,

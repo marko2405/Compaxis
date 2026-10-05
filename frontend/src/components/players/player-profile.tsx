@@ -5,12 +5,10 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
-import { formatSeasonCode } from "@/lib/format-season-code";
 import type { PlayerProfile as PlayerProfileData } from "@/types/player";
 
 import { LeaderboardAvatar } from "./leaderboard-avatar";
@@ -63,9 +61,6 @@ export function PlayerProfile({ backHref, player }: PlayerProfileProps) {
               src={player.image_url}
             />
             <Box sx={{ flex: 1 }}>
-              <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1, mb: 1 }}>
-                <Chip label={formatSeasonCode(player.season_code)} variant="outlined" />
-              </Stack>
               <Typography component="h1" variant="h1">
                 {player.first_name} {player.last_name}
               </Typography>
@@ -88,7 +83,7 @@ export function PlayerProfile({ backHref, player }: PlayerProfileProps) {
             </Box>
             <Button
               color="secondary"
-              href={`/scout?playerA=${player.player_id}`}
+              href={`/scout?playerA=${player.player_id}&season_code=${encodeURIComponent(player.season_code)}`}
               startIcon={<AutoAwesomeOutlinedIcon />}
               variant="contained"
             >

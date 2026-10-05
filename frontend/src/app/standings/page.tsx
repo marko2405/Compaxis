@@ -1,19 +1,38 @@
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
 import { StandingsTable } from "@/components/standings/standings-table";
-import { formatSeasonCode } from "@/lib/format-season-code";
+import { getSeasons } from "@/services/season-service";
 import { getStandings } from "@/services/standing-service";
+import { resolveSeasonCode } from "@/lib/season-selection";
 
-const SEASON_CODE = "E2024";
+type StandingsPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export default async function StandingsPage() {
+export default async function StandingsPage({ searchParams }: StandingsPageProps) {
+  const params = await searchParams;
+  let seasons;
+  try {
+    seasons = await getSeasons();
+  } catch {
+    seasons = null;
+  }
+
+  if (seasons === null) {
+    return <Alert severity="error" variant="outlined">Seasons are currently unavailable. Check that the API is running and try again.</Alert>;
+  }
+  if (seasons.length === 0) {
+    return <Alert severity="info" variant="outlined">No seasons are available yet.</Alert>;
+  }
+
+  const seasonCode = await resolveSeasonCode(seasons, readSingleValue(params.season_code));
+  if (!seasonCode) return <Alert severity="info" variant="outlined">No seasons are available yet.</Alert>;
   let standings;
   try {
-    standings = await getStandings(SEASON_CODE);
+    standings = await getStandings(seasonCode);
   } catch {
     standings = null;
   }
@@ -23,7 +42,6 @@ export default async function StandingsPage() {
       <Box>
         <Stack direction="row" sx={{ alignItems: "center", flexWrap: "wrap", gap: 1 }}>
           <Typography component="h1" variant="h1">Standings</Typography>
-          <Chip label={formatSeasonCode(SEASON_CODE)} size="small" variant="outlined" />
         </Stack>
         <Typography color="text.secondary" sx={{ mt: 0.75 }}>
           Official EuroLeague regular-season table and team records.
@@ -32,7 +50,7 @@ export default async function StandingsPage() {
 
       {standings ? (
         standings.items.length > 0 ? (
-          <StandingsTable items={standings.items} />
+          <StandingsTable items={standings.items} seasonCode={seasonCode} />
         ) : (
           <Alert severity="info" variant="outlined">Standings have not been imported for this season.</Alert>
         )
@@ -43,4 +61,8 @@ export default async function StandingsPage() {
       )}
     </Stack>
   );
+}
+
+function readSingleValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }

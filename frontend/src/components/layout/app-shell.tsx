@@ -5,13 +5,16 @@ import { useState } from "react";
 
 import { AppHeader } from "./app-header";
 import { Sidebar } from "./sidebar";
+import { SeasonProvider } from "./season-context";
+import type { Season } from "@/types/season";
 
-type AppShellProps = Readonly<{ children: React.ReactNode }>;
+type AppShellProps = Readonly<{ children: React.ReactNode; initialSeasonCode: string | null; seasons: Season[] }>;
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, initialSeasonCode, seasons }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
+    <SeasonProvider initialSeasonCode={initialSeasonCode} seasons={seasons}>
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar
         mobileOpen={mobileOpen}
@@ -31,5 +34,6 @@ export function AppShell({ children }: AppShellProps) {
         </Box>
       </Box>
     </Box>
+    </SeasonProvider>
   );
 }

@@ -12,8 +12,10 @@ export class TeamServiceError extends Error {
   }
 }
 
-export async function getTeams(): Promise<TeamListItem[]> {
-  const payload = await requestTeams(new URL("/teams", getApiUrl()));
+export async function getTeams(seasonCode?: string): Promise<TeamListItem[]> {
+  const url = new URL("/teams", getApiUrl());
+  if (seasonCode) url.searchParams.set("season_code", seasonCode);
+  const payload = await requestTeams(url);
   if (!Array.isArray(payload) || !payload.every(isTeamListItem)) {
     throw new TeamServiceError("The teams response is invalid.");
   }

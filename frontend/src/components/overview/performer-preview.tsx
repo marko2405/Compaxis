@@ -1,3 +1,5 @@
+"use client";
+
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
@@ -15,16 +17,17 @@ type PerformerMetric = "pir_per_game" | "points_per_game" | "assists_per_game";
 type PerformerPreviewProps = {
   metric: PerformerMetric;
   players: PlayerLeaderboardEntry[] | null;
+  seasonCode: string;
   title: string;
 };
 
-export function PerformerPreview({ metric, players, title }: PerformerPreviewProps) {
+export function PerformerPreview({ metric, players, seasonCode, title }: PerformerPreviewProps) {
   return (
     <Card sx={{ height: "100%", minWidth: 0 }}>
       <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
         <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between", p: 2 }}>
           <Typography component="h2" variant="h3">{title}</Typography>
-          <Link href={`/players?sort_by=${metricToSort(metric)}&order=desc&page=1`} sx={{ alignItems: "center", display: "inline-flex", fontSize: "0.8rem", fontWeight: 700, gap: 0.25 }} underline="hover">
+          <Link href={`/players?season_code=${encodeURIComponent(seasonCode)}&sort_by=${metricToSort(metric)}&order=desc&page=1`} sx={{ alignItems: "center", display: "inline-flex", fontSize: "0.8rem", fontWeight: 700, gap: 0.25 }} underline="hover">
             View all <ArrowForwardRounded sx={{ fontSize: 16 }} />
           </Link>
         </Stack>
@@ -37,7 +40,7 @@ export function PerformerPreview({ metric, players, title }: PerformerPreviewPro
         ) : (
           <Stack divider={<Divider flexItem />}>
             {players.map((player, index) => (
-              <Link color="inherit" href={`/players/${player.player_id}`} key={player.player_id} sx={{ "&:hover": { backgroundColor: "action.hover" }, display: "block", px: 2, py: 1.25, textDecoration: "none" }}>
+              <Link color="inherit" href={`/players/${player.player_id}?season_code=${encodeURIComponent(seasonCode)}`} key={player.player_id} sx={{ "&:hover": { backgroundColor: "action.hover" }, display: "block", px: 2, py: 1.25, textDecoration: "none" }}>
                 <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
                   <Typography color="text.secondary" sx={{ flexShrink: 0, fontSize: "0.75rem", fontWeight: 700, width: 16 }}>{index + 1}</Typography>
                   <LeaderboardAvatar alt="" fallback={player.first_name.charAt(0)} size={34} src={player.image_url} />

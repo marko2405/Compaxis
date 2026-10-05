@@ -14,11 +14,13 @@ import { useEffect, useState } from "react";
 import { LeaderboardAvatar } from "@/components/players/leaderboard-avatar";
 import { searchPlayers } from "@/services/player-service";
 import type { PlayerSearchResult } from "@/types/player";
+import { useSeason } from "./season-context";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
 export function PlayerSearch() {
   const router = useRouter();
+  const { withSeason } = useSeason();
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<PlayerSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ export function PlayerSearch() {
         if (!player) return;
         setInputValue("");
         setOptions([]);
-        router.push(`/players/${player.player_id}`);
+        router.push(withSeason(`/players/${player.player_id}`));
       }}
       onInputChange={(_, value) => {
         setInputValue(value);

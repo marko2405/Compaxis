@@ -46,6 +46,18 @@ class TeamRepository:
 
         return list(db.scalars(statement).all())
 
+    def get_all_for_season(self, db: Session, *, season_code: str) -> list[Team]:
+        statement = (
+            select(Team)
+            .join(PlayerSeasonStats, PlayerSeasonStats.team_id == Team.id)
+            .join(Season, Season.id == PlayerSeasonStats.season_id)
+            .where(Season.code == season_code)
+            .distinct()
+            .order_by(Team.name.asc(), Team.id.asc())
+        )
+
+        return list(db.scalars(statement).all())
+
     def get_by_id(self, db: Session, team_id: int) -> Team | None:
         return db.get(Team, team_id)
 

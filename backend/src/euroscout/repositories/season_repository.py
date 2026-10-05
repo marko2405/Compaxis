@@ -5,6 +5,11 @@ from euroscout.models.season import Season
 
 
 class SeasonRepository:
+    def get_all(self, db: Session) -> list[Season]:
+        statement = select(Season).order_by(Season.code.desc(), Season.id.desc())
+
+        return list(db.scalars(statement).all())
+
     def get_by_code(self, db: Session, code: str) -> Season | None:
         statement = select(Season).where(Season.code == code)
 

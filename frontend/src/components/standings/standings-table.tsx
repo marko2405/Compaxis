@@ -11,7 +11,7 @@ import TableRow from "@mui/material/TableRow";
 import { LeaderboardAvatar } from "@/components/players/leaderboard-avatar";
 import type { StandingItem } from "@/types/standing";
 
-export function StandingsTable({ items }: { items: StandingItem[] }) {
+export function StandingsTable({ items, seasonCode }: { items: StandingItem[]; seasonCode: string }) {
   return (
     <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
       <Table aria-label="EuroLeague standings" size="small" sx={{ minWidth: 780 }}>
@@ -42,7 +42,7 @@ export function StandingsTable({ items }: { items: StandingItem[] }) {
                     src={item.team_logo_url}
                     variant="rounded"
                   />
-                  <Link href={`/teams/${item.team_id}`} sx={{ color: "text.primary", fontWeight: 650, whiteSpace: "nowrap" }} underline="hover">
+                  <Link href={`/teams/${item.team_id}?season_code=${encodeURIComponent(seasonCode)}`} sx={{ color: "text.primary", fontWeight: 650, whiteSpace: "nowrap" }} underline="hover">
                     {item.team_name}
                   </Link>
                 </Stack>

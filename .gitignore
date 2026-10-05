@@ -22,3 +22,5 @@ backend/.venv/
 # Node (kasnije)
 frontend/node_modules/
 frontend/.next/
+frontend/.next.stale/
+frontend/dev-server.*.log

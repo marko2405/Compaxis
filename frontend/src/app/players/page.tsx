@@ -8,6 +8,8 @@ import { LeaderboardControls } from "@/components/players/leaderboard-controls";
 import { LeaderboardPagination } from "@/components/players/leaderboard-pagination";
 import { PlayerLeaderboardTable } from "@/components/players/player-leaderboard-table";
 import { getPlayerLeaderboard } from "@/services/player-service";
+import { getSeasons } from "@/services/season-service";
+import { resolveSeasonCode } from "@/lib/season-selection";
 import {
   playerLeaderboardSorts,
   type PlayerLeaderboardOrder,
@@ -22,7 +24,24 @@ const PAGE_SIZE = 15;
 
 export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const params = await searchParams;
-  const seasonCode = readSingleValue(params.season_code) ?? "E2024";
+  let seasons;
+
+  try {
+    seasons = await getSeasons();
+  } catch {
+    seasons = null;
+  }
+
+  if (seasons === null) {
+    return <PageState severity="error">Seasons are currently unavailable. Check that the API is running and try again.</PageState>;
+  }
+
+  if (seasons.length === 0) {
+    return <PageState severity="info">No seasons are available yet.</PageState>;
+  }
+
+  const seasonCode = await resolveSeasonCode(seasons, readSingleValue(params.season_code));
+  if (!seasonCode) return <PageState severity="info">No seasons are available yet.</PageState>;
   const sortBy = parseSort(readSingleValue(params.sort_by));
   const order = parseOrder(readSingleValue(params.order));
   const page = parsePage(readSingleValue(params.page));
@@ -57,7 +76,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
           order={order}
           page={page}
           pageSize={PAGE_SIZE}
-          seasonCode={seasonCode}
           sortBy={sortBy}
         />
       </Paper>
@@ -89,6 +107,10 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
       )}
     </Stack>
   );
+}
+
+function PageState({ children, severity }: { children: React.ReactNode; severity: "error" | "info" }) {
+  return <Alert severity={severity} variant="outlined">{children}</Alert>;
 }
 
 function readSingleValue(value: string | string[] | undefined): string | undefined {
