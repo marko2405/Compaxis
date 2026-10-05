@@ -31,7 +31,8 @@ export function PlayerSelector({
       getOptionKey={(option) => `${option.player_id}-${option.team_id}`}
       getOptionLabel={(option) => `${option.first_name} ${option.last_name}`}
       isOptionEqualToValue={(option, selected) =>
-        option.player_id === selected.player_id && option.team_id === selected.team_id
+        option.player_id === selected.player_id &&
+        option.team_id === selected.team_id
       }
       onChange={(_, player) => onChange(player)}
       options={players}
@@ -61,6 +62,11 @@ export function PlayerSelector({
             </Stack>
           </Box>
         );
+      }}
+      sx={{
+        "& .MuiInputLabel-root:not(.MuiInputLabel-shrink)": {
+          transform: "translate(14px, 13px)",
+        },
       }}
       value={value}
     />

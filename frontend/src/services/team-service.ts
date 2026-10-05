@@ -1,6 +1,5 @@
 import type { TeamListItem, TeamProfile, TeamRosterPlayer } from "@/types/team";
-
-const DEFAULT_API_URL = "http://127.0.0.1:8000";
+import { getApiUrl } from "@/services/api-url";
 
 export class TeamServiceError extends Error {
   readonly status: number | undefined;
@@ -54,10 +53,6 @@ async function requestTeams(url: URL): Promise<unknown> {
   }
 
   return response.json();
-}
-
-function getApiUrl(): string {
-  return process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
 }
 
 function isTeamListItem(value: unknown): value is TeamListItem {

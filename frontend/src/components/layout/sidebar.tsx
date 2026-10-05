@@ -1,6 +1,5 @@
 "use client";
 
-import SportsBasketballOutlinedIcon from "@mui/icons-material/SportsBasketballOutlined";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
@@ -10,6 +9,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSeason } from "./season-context";
@@ -38,23 +38,16 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         spacing={1.25}
         sx={{ alignItems: "center", minHeight: 48, px: 1 }}
       >
-        <Box
-          sx={{
-            alignItems: "center",
-            bgcolor: "primary.main",
-            borderRadius: 2.5,
-            color: "primary.contrastText",
-            display: "flex",
-            height: 36,
-            justifyContent: "center",
-            width: 36,
-          }}
-        >
-          <SportsBasketballOutlinedIcon fontSize="small" />
-        </Box>
+        <Image
+          alt="Compaxis"
+          height={38}
+          priority
+          src="/brand/compaxis-mark.png"
+          width={38}
+        />
         <Box>
           <Typography sx={{ fontWeight: 750, letterSpacing: "-0.025em" }}>
-            EuroScoutAI
+            Compaxis
           </Typography>
           <Typography color="text.secondary" variant="caption">
             Scouting intelligence

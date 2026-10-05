@@ -5,8 +5,7 @@ import type {
   PlayerProfile,
   PlayerSearchResult,
 } from "@/types/player";
-
-const DEFAULT_API_URL = "http://127.0.0.1:8000";
+import { getApiUrl } from "@/services/api-url";
 
 export class PlayerServiceError extends Error {
   readonly status: number | undefined;
@@ -21,8 +20,7 @@ export class PlayerServiceError extends Error {
 export async function getPlayerLeaderboard(
   query: PlayerLeaderboardQuery,
 ): Promise<PaginatedPlayerLeaderboard> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
-  const url = new URL("/players/leaderboard", apiUrl);
+  const url = new URL("/players/leaderboard", getApiUrl());
 
   url.searchParams.set("season_code", query.seasonCode);
   url.searchParams.set("sort_by", query.sortBy);
@@ -61,8 +59,7 @@ export async function searchPlayers(
   const normalizedQuery = query.trim();
   if (normalizedQuery.length < 2) return [];
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
-  const url = new URL("/players/search", apiUrl);
+  const url = new URL("/players/search", getApiUrl());
   url.searchParams.set("q", normalizedQuery);
   url.searchParams.set("limit", (options.limit ?? 8).toString());
 
@@ -124,8 +121,7 @@ export async function getPlayerProfile(
   playerId: number,
   seasonCode: string,
 ): Promise<PlayerProfile> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
-  const url = new URL(`/players/${playerId}/profile`, apiUrl);
+  const url = new URL(`/players/${playerId}/profile`, getApiUrl());
   url.searchParams.set("season_code", seasonCode);
 
   let response: Response;
@@ -166,7 +162,7 @@ function isPaginatedPlayerLeaderboard(
   );
 }
 
-function isPlayerLeaderboardEntry(
+export function isPlayerLeaderboardEntry(
   value: unknown,
 ): value is PlayerLeaderboardEntry {
   if (!isRecord(value)) {

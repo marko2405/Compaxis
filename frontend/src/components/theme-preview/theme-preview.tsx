@@ -54,7 +54,7 @@ export function ThemePreview() {
           >
             <Box>
               <Typography color="primary" variant="overline">
-                EuroScoutAI design system
+                Compaxis design system
               </Typography>
               <Typography component="h1" variant="h1">
                 Scouting intelligence, clearly presented.

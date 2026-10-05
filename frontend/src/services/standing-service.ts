@@ -1,6 +1,5 @@
 import type { StandingItem, Standings } from "@/types/standing";
-
-const DEFAULT_API_URL = "http://127.0.0.1:8000";
+import { getApiUrl } from "@/services/api-url";
 
 export class StandingServiceError extends Error {
   readonly status: number | undefined;
@@ -13,8 +12,7 @@ export class StandingServiceError extends Error {
 }
 
 export async function getStandings(seasonCode: string): Promise<Standings> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
-  const url = new URL("/standings", apiUrl);
+  const url = new URL("/standings", getApiUrl());
   url.searchParams.set("season_code", seasonCode);
 
   let response: Response;
@@ -47,7 +45,7 @@ function isStandings(value: unknown): value is Standings {
   );
 }
 
-function isStandingItem(value: unknown): value is StandingItem {
+export function isStandingItem(value: unknown): value is StandingItem {
   return (
     isRecord(value) &&
     isNumber(value.rank) &&

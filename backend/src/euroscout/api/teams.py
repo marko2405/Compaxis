@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from euroscout.database.session import get_db
 from euroscout.schemas.team import TeamListResponse, TeamProfileResponse, TeamResponse
+from euroscout.services.season_service import SeasonService
 from euroscout.services.team_service import TeamService
 
 router = APIRouter(
@@ -13,6 +14,7 @@ router = APIRouter(
 )
 
 team_service = TeamService()
+season_service = SeasonService()
 
 DatabaseSession = Annotated[Session, Depends(get_db)]
 
@@ -35,12 +37,18 @@ def get_teams(
 def get_team_profile(
     team_id: int,
     db: DatabaseSession,
-    season_code: str = "E2024",
+    season_code: str | None = None,
 ) -> TeamProfileResponse:
+    resolved_season_code = season_service.resolve_season_code(db, season_code)
+    if resolved_season_code is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No seasons are available.",
+        )
     profile = team_service.get_profile(
         db,
         team_id=team_id,
-        season_code=season_code,
+        season_code=resolved_season_code,
     )
     if profile is None:
         raise HTTPException(

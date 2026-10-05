@@ -1,5 +1,7 @@
 html {
   height: 100%;
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: "Courier New", monospace;
 }
 
 html,

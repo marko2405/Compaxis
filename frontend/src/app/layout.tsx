@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
-import { Geist } from "next/font/google";
 
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AppShell } from "@/components/layout/app-shell";
@@ -10,13 +9,11 @@ import { getSeasons } from "@/services/season-service";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "EuroScoutAI",
+  title: {
+    default: "Compaxis",
+    template: "%s | Compaxis",
+  },
   description: "EuroLeague scouting and analytics intelligence.",
 };
 
@@ -24,7 +21,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const seasons = await getSeasons().catch(() => []);
   const initialSeasonCode = await resolveSeasonCode(seasons);
   return (
-    <html lang="en" className={geistSans.variable} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body>
         <InitColorSchemeScript attribute="data" defaultMode="system" />
         <ThemeProvider>

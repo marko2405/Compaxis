@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from euroscout.api.overview import router as overview_router
 from euroscout.api.players import router as players_router
 from euroscout.api.scout import router as scout_router
 from euroscout.api.seasons import router as seasons_router
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(players_router)
+app.include_router(overview_router)
 app.include_router(scout_router)
 app.include_router(seasons_router)
 app.include_router(teams_router)

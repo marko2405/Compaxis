@@ -5,8 +5,7 @@ import type {
   ScoutComparisonRequest,
   ScoutComparisonResponse,
 } from "@/types/scout";
-
-const DEFAULT_API_URL = "http://127.0.0.1:8000";
+import { getApiUrl } from "@/services/api-url";
 
 export class ScoutServiceError extends Error {
   readonly status: number | undefined;
@@ -21,8 +20,7 @@ export class ScoutServiceError extends Error {
 export async function comparePlayers(
   comparison: ScoutComparisonRequest,
 ): Promise<ScoutComparisonResponse> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL;
-  const url = new URL("/scout/compare", apiUrl);
+  const url = new URL("/scout/compare", getApiUrl());
   let response: Response;
 
   try {

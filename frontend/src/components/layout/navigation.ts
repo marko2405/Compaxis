@@ -33,7 +33,7 @@ export function getPageTitle(pathname: string): string {
 
   return (
     routeTitles.find(({ href }) => isActiveRoute(pathname, href))?.label ??
-    "EuroScoutAI"
+    "Compaxis"
   );
 }
 

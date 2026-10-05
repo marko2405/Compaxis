@@ -13,6 +13,7 @@ from euroscout.schemas.player import (
     PlayerSearchResult,
 )
 from euroscout.services.player_service import PlayerService
+from euroscout.services.season_service import SeasonService
 
 router = APIRouter(
     prefix="/players",
@@ -20,6 +21,7 @@ router = APIRouter(
 )
 
 player_service = PlayerService()
+season_service = SeasonService()
 
 DatabaseSession = Annotated[Session, Depends(get_db)]
 
@@ -54,15 +56,21 @@ def search_players(
 )
 def get_player_leaderboard(
     db: DatabaseSession,
-    season_code: str = "E2024",
+    season_code: str | None = None,
     sort_by: PlayerLeaderboardSort = "pir",
     order: PlayerLeaderboardOrder = "desc",
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=20)] = 15,
 ) -> PaginatedPlayerLeaderboardResponse:
+    resolved_season_code = season_service.resolve_season_code(db, season_code)
+    if resolved_season_code is None:
+        return PaginatedPlayerLeaderboardResponse(
+            items=[], page=page, page_size=page_size, total_items=0, total_pages=0
+        )
+
     return player_service.get_leaderboard(
         db,
-        season_code=season_code,
+        season_code=resolved_season_code,
         sort_by=sort_by,
         order=order,
         page=page,
@@ -77,12 +85,18 @@ def get_player_leaderboard(
 def get_player_profile(
     player_id: int,
     db: DatabaseSession,
-    season_code: str = "E2024",
+    season_code: str | None = None,
 ) -> PlayerLeaderboardResponse:
+    resolved_season_code = season_service.resolve_season_code(db, season_code)
+    if resolved_season_code is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No seasons are available.",
+        )
     profile = player_service.get_profile(
         db,
         player_id=player_id,
-        season_code=season_code,
+        season_code=resolved_season_code,
     )
 
     if profile is None:

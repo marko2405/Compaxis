@@ -8,24 +8,13 @@ import { PerformerPreview } from "@/components/overview/performer-preview";
 import { ScoutQuickAction } from "@/components/overview/scout-quick-action";
 import { StandingsLeaderCard } from "@/components/overview/standings-leader-card";
 import { formatSeasonCode } from "@/lib/format-season-code";
-import { getPlayerLeaderboard } from "@/services/player-service";
+import { getOverview } from "@/services/overview-service";
 import { getSeasons } from "@/services/season-service";
-import { getStandings } from "@/services/standing-service";
-import { getTeams } from "@/services/team-service";
 import { resolveSeasonCode } from "@/lib/season-selection";
-import type { PlayerLeaderboardSort } from "@/types/player";
 
 type OverviewPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
-
-function getTopPlayers(seasonCode: string, sortBy: PlayerLeaderboardSort) {
-  return getPlayerLeaderboard({ seasonCode, sortBy, order: "desc", page: 1, pageSize: 5 });
-}
-
-function fulfilledValue<T>(result: PromiseSettledResult<T>): T | null {
-  return result.status === "fulfilled" ? result.value : null;
-}
 
 export default async function OverviewPage({ searchParams }: OverviewPageProps) {
   const params = await searchParams;
@@ -49,22 +38,8 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
   if (!seasonCode) return <OverviewState severity="info">No seasons are available yet.</OverviewState>;
   const selectedSeason = seasons.find((season) => season.code === seasonCode) ?? seasons[0];
 
-  const [pirResult, scorersResult, assistsResult, teamsResult, standingsResult] =
-    await Promise.allSettled([
-      getTopPlayers(seasonCode, "pir"),
-      getTopPlayers(seasonCode, "points"),
-      getTopPlayers(seasonCode, "assists"),
-      getTeams(seasonCode),
-      getStandings(seasonCode),
-    ]);
-
-  const pir = fulfilledValue(pirResult);
-  const scorers = fulfilledValue(scorersResult);
-  const assists = fulfilledValue(assistsResult);
-  const teams = fulfilledValue(teamsResult);
-  const standings = fulfilledValue(standingsResult);
-  const playerCount = pir?.total_items ?? scorers?.total_items ?? assists?.total_items ?? null;
-  const leader = standings?.items[0] ?? null;
+  const overview = await getOverview(seasonCode).catch(() => null);
+  const leader = overview?.leader ?? null;
 
   return (
     <Stack spacing={3}>
@@ -79,19 +54,19 @@ export default async function OverviewPage({ searchParams }: OverviewPageProps) 
 
       <OverviewSummary
         leaderName={leader?.team_name ?? null}
-        playerCount={playerCount}
-        season={selectedSeason.name || formatSeasonCode(seasonCode)}
-        teamCount={teams?.length ?? null}
+        playerCount={overview?.player_count ?? null}
+        season={overview?.season_name || selectedSeason.name || formatSeasonCode(seasonCode)}
+        teamCount={overview?.team_count ?? null}
       />
 
       <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "repeat(3, minmax(0, 1fr))" } }}>
-        <PerformerPreview metric="pir_per_game" players={pir?.items ?? null} seasonCode={seasonCode} title="Top PIR" />
-        <PerformerPreview metric="points_per_game" players={scorers?.items ?? null} seasonCode={seasonCode} title="Top Scorers" />
-        <PerformerPreview metric="assists_per_game" players={assists?.items ?? null} seasonCode={seasonCode} title="Top Assists" />
+        <PerformerPreview metric="pir_per_game" players={overview?.top_pir ?? null} seasonCode={seasonCode} title="Top PIR" />
+        <PerformerPreview metric="points_per_game" players={overview?.top_scorers ?? null} seasonCode={seasonCode} title="Top Scorers" />
+        <PerformerPreview metric="assists_per_game" players={overview?.top_assists ?? null} seasonCode={seasonCode} title="Top Assists" />
       </Box>
 
       <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "minmax(0, 3fr) minmax(280px, 2fr)" } }}>
-        <StandingsLeaderCard available={standings !== null} leader={leader} seasonCode={seasonCode} />
+        <StandingsLeaderCard available={overview !== null} leader={leader} seasonCode={seasonCode} />
         <ScoutQuickAction />
       </Box>
 

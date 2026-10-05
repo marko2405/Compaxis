@@ -10,3 +10,15 @@ class SeasonService:
 
     def get_all_seasons(self, db: Session) -> list[Season]:
         return self.repository.get_all(db)
+
+    def resolve_season_code(
+        self,
+        db: Session,
+        requested_code: str | None,
+    ) -> str | None:
+        if requested_code:
+            season = self.repository.get_by_code(db, requested_code)
+            return season.code if season else None
+
+        seasons = self.repository.get_all(db)
+        return seasons[0].code if seasons else None
